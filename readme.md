@@ -150,7 +150,7 @@ Session ID: session_1
 
 ---
 
-## **Potentil Future Improvements**
+## **Potential Future Improvements**
 
 - **Domain-Specific Sentiments**:
    - Add labels like "Frustrated" or "Hopeful" for technical support.
