@@ -1,21 +1,34 @@
 # **Sentiment Analysis Tool for Conversations**
 
-This project analyzes the sentiment of messages or full chat exchanges using a pre-trained transformer model from Hugging Face. It supports dynamic label mapping for flexibility and can process single or multi-turn conversations.
+This project provides a robust **sentiment analysis tool** designed for processing technical support or conversational datasets. It leverages a **pre-trained transformer model** from Hugging Face to classify text into **Positive**, **Neutral**, or **Negative** sentiments.
+
+The tool supports dynamic label mapping, enabling compatibility with various models and tasks. It is particularly useful for analyzing interactions, such as customer service chats, by segmenting messages by users (AI agents vs. Humans) and summarizing sentiment trends.
+
+This tool was built to demonstrate and test a pipeline to monitor AI and human conversations in the context of customer service via an AI chatbot.
 
 ---
 
 ## **Features**
-- **Sentiment Analysis**: Classifies text into **Positive**, **Negative**, or **Neutral** sentiment.  
-- **Dynamic Label Mapping**: Fetches human-readable labels dynamically to ensure compatibility with any model.  
-- **Flexible Input**: Accepts individual messages or entire conversations for analysis.  
-- **Scalable**: Easily extendable for additional tasks like emotion detection or fine-tuning.
+
+- **Sentiment Analysis**: 
+   - Classifies messages as **Positive**, **Neutral**, or **Negative**, with associated confidence scores.
+- **Session-Level Insights**: 
+   - Groups conversations by session and analyzes sentiment trends for **AI** and **Human** participants.
+- **Dynamic Label Mapping**: 
+   - Adapts to different sentiment models through automated label fetching.
+- **Batch Processing**: 
+   - Processes multiple messages simultaneously for improved performance, leveraging GPU support.
+- **Modular Design**: 
+   - Individual scripts handle conversation parsing, sentiment analysis, and label fetching, making the tool extensible.
 
 ---
 
 ## **Technologies Used**
+
 - **Python 3.12+**  
 - **Hugging Face Transformers**  
 - **Cardiff NLP Model**: `cardiffnlp/twitter-roberta-base-sentiment`  
+- **Pandas**: For data manipulation.  
 
 ---
 
@@ -23,7 +36,7 @@ This project analyzes the sentiment of messages or full chat exchanges using a p
 
 ### **1. Clone the Repository**
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/themockster/SentimentAnalysis
 cd <your-repo-folder>
 ```
 
@@ -52,49 +65,113 @@ python main.py
 
 ---
 
+## **Workflow**
+
+### **Input**: A CSV file with the following structure:
+```csv
+id,session_id,message,created_at
+1,session_1,"{""type"": ""ai"", ""data"": {""content"": ""Hello! How can I assist you today?""}}",2024-12-16 18:44:21
+2,session_1,"{""type"": ""human"", ""data"": {""content"": ""My laptop won't turn on. Can you help me?""}}",2024-12-16 18:45:21
+```
+
+### **Process**:
+1. **Conversation Parsing**:
+   - Extracts `message_type` (e.g., AI or Human) and `message_content` from the dataset.
+   - Groups messages by `session_id`.
+
+2. **Sentiment Analysis**:
+   - Processes AI and Human messages separately.
+   - Fetches labels dynamically from Cardiff NLP’s sentiment dataset.
+   - Outputs **sentiments and confidence scores** for each message.
+
+3. **Session-Level Summaries**:
+   - Aggregates sentiment trends for AI and Human participants.
+   - Displays counts and average confidence for each sentiment category.
+
+### **Output**:
+```plaintext
+Session-Level Sentiment Analysis Results:
+
+Session ID: session_1
+  AI Sentiments:
+    - Neutral: Count = 2, Avg Confidence = 0.80
+  Human Sentiments:
+    - Negative: Count = 1, Avg Confidence = 0.84
+
+Session ID: session_2
+  AI Sentiments:
+    - Neutral: Count = 2, Avg Confidence = 0.84
+  Human Sentiments:
+    - Negative: Count = 1, Avg Confidence = 0.89
+```
+
+---
+
 ## **File Structure**
+
 ```plaintext
 .
-├── label_fetcher.py       # Fetches dynamic label mappings from Cardiff NLP
-├── main.py                # Main script for sentiment analysis
-├── requirements.txt       # List of dependencies
-└── README.md              # Project documentation
+├── conversation_analyzer.py  # Sentiment analysis logic using Hugging Face
+├── conversation_parser.py    # Processes and groups conversation data
+├── label_fetcher.py          # Fetches dynamic sentiment labels
+├── main.py                   # Main script for running the analysis
+├── requirements.txt          # Dependencies
+└── README.md                 # Documentation
 ```
 
 ---
 
 ## **How It Works**
-1. **Dynamic Label Mapping**:  
-   Labels are fetched from a remote source (e.g., Cardiff NLP) to ensure compatibility with the sentiment model.  
-2. **Message/Conversation Processing**:  
-   Text data is passed to a Hugging Face pipeline for analysis.  
-3. **Output**:  
-   The tool outputs sentiment (**Positive**, **Neutral**, or **Negative**) along with the confidence score.
+
+### **Dynamic Label Mapping**
+- The script fetches sentiment labels dynamically from Cardiff NLP’s GitHub repository, ensuring compatibility with the selected model.
+
+### **Conversation Parsing**
+- Parses raw JSON-formatted messages in a CSV file, extracting key details such as message type (AI or Human) and content.
+
+### **Sentiment Analysis**
+- Leverages the `cardiffnlp/twitter-roberta-base-sentiment` model to analyze messages in batches for efficiency. Supports GPU acceleration for faster processing.
+
+### **Session Summaries**
+- Provides sentiment breakdowns for each session, highlighting trends for AI agents and Human users.
 
 ---
 
 ## **Example Output**
+
+For a sample session:
 ```plaintext
-Sentiment Analysis Results:
-Message 1: Sentiment: positive, Confidence: 0.98
-Message 2: Sentiment: negative, Confidence: 0.76
-Message 3: Sentiment: neutral, Confidence: 0.81
+Session ID: session_1
+  AI Sentiments:
+    - Neutral: Count = 2, Avg Confidence = 0.80
+  Human Sentiments:
+    - Negative: Count = 1, Avg Confidence = 0.84
 ```
 
 ---
 
-## **Future Improvements**
-- Add support for analyzing individual user/agent exchanges in a conversation.
-- Fine-tune the model for domain-specific datasets (e.g., customer support conversations).
-- Add options to save results to a file (CSV, JSON, etc.).
+## **Potentil Future Improvements**
+
+- **Domain-Specific Sentiments**:
+   - Add labels like "Frustrated" or "Hopeful" for technical support.
+- **Sentiment Shift Analysis**:
+   - Track sentiment progression within sessions (e.g., "Negative → Neutral").
+- **Visualization**:
+   - Generate heatmaps or graphs for sentiment trends.
+- **Fine-Tuning**:
+   - Train the sentiment model on technical support datasets for improved accuracy.
+- **Microservice Endpoint**:
+   - Provide the script as a microservice endpoint to monitor conversations and flag issues with support conversations.
 
 ---
 
 ## **Credits**
+
 - [Hugging Face Transformers](https://huggingface.co/)
 - [Cardiff NLP Models](https://huggingface.co/cardiffnlp)
 
 ---
 
 ## **License**
+
 This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
